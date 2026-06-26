@@ -1,0 +1,25 @@
+services:
+  # Контейнер с веб-приложением (PHP + Apache)
+  web:
+    build: .
+    container_name: obuhov_web
+    ports:
+      - "80:80"          # пробрасываем 80 порт наружу: http://10.2.100.2 откроет сайт
+    volumes:
+      - ./src:/var/www/html   # код из папки src кладём в корень Apache
+    depends_on:
+      - db
+    restart: always
+
+  # Контейнер с базой данных MySQL
+  db:
+    image: mysql:8.0
+    container_name: obuhov_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass      # пароль root для MySQL
+      MYSQL_DATABASE: obuhov_db          # БД создаётся автоматически при старте
+      MYSQL_USER: webuser
+      MYSQL_PASSWORD: webpass
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # этот SQL выполнится при первом запуске
+    restart: always
